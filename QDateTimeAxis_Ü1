@@ -53,56 +53,63 @@ class CentralWidget(QChartView):
 
 
 Lösungsvorschlag:
-from PyQt6.QtCharts import QChartView, QChart, QLineSeries, QDateTimeAxis, QValueAxis
-from PyQt6.QtCore import Qt, QDateTime
-from PyQt6.QtGui import QMouseEvent
+# ------------------------------------------------------------------------------------------------------------
+# Aufgabenstellung:
+# Wie Sie im Unterricht gesehen haben, können Sie über den folgenden Quelltext Werte in den Graphen per Mausklick einfügen.
+# 
+# Ändern Sie den folgenden Quelltext nun so ab, dass die Werte in zeitlicher Reihenfolge geordnet sind:
+# ------------------------------------------------------------------------------------------------------------
+
+from PyQt6.QtCharts import QChartView, QChart, QLineSeries, QDateTimeAxis, QValueAxis  # Importiert die benötigten Chart-Komponenten
+from PyQt6.QtCore import Qt, QDateTime  # Importiert Qt-Konstanten und Datum-Zeit-Funktionen
+from PyQt6.QtGui import QMouseEvent  # Importiert Maus-Events
 
 
-class CentralWidget(QChartView):
+class CentralWidget(QChartView):  # Widget zur Darstellung eines Diagramms, erbt von QChartView
     def __init__(self, parent=None):
-        super(CentralWidget, self).__init__(parent)
+        super(CentralWidget, self).__init__(parent)  # Aufruf des Eltern-Konstruktors
 
-        self.__series = QLineSeries()
-        self.__series.setName("Goldpreisentwicklung in $")
+        self.__series = QLineSeries()  # Erstellt eine neue Datenreihe (Linie)
+        self.__series.setName("Goldpreisentwicklung in $")  # Setzt den Namen der Datenreihe
 
-        axis_x = QDateTimeAxis()
-        axis_x.setTitleText("Datum")
+        axis_x = QDateTimeAxis()  # Zeitachse für die X-Achse
+        axis_x.setTitleText("Datum")  # Titel der X-Achse setzen
 
-        start_date = QDateTime.currentDateTime().addSecs(-1 * 60 * 10)
-        end_date = QDateTime.currentDateTime()
+        start_date = QDateTime.currentDateTime().addSecs(-1 * 60 * 10)  # Startzeitpunkt: 10 Minuten vor aktueller Zeit
+        end_date = QDateTime.currentDateTime()  # Endzeitpunkt: aktuelle Zeit
 
-        axis_x.setRange(start_date, end_date)
+        axis_x.setRange(start_date, end_date)  # Zeitbereich auf der X-Achse setzen
+        axis_x.setFormat("hh:mm:ss")  # Format für die Zeitanzeige (z. B. 13:42:08)
 
-        axis_x.setFormat("hh:mm:ss")
+        axis_dollar = QValueAxis()  # Y-Achse für den Goldpreis
+        axis_dollar.setTitleText("Goldpreis in $")  # Beschriftung für die Y-Achse
+        axis_dollar.setRange(1250, 2750)  # Wertebereich des Goldpreises auf der Y-Achse
 
-        axis_dollar = QValueAxis()
-        axis_dollar.setTitleText("Goldpreis in $")
-        axis_dollar.setRange(1250, 2750)
+        self.__chart = QChart()  # Erstellt ein neues Diagramm-Objekt
+        self.__chart.setTitle("Goldpreisentwicklung")  # Titel des Diagramms
 
-        self.__chart = QChart()
-        self.__chart.setTitle("Goldpreisentwicklung")
+        self.__chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)  # Fügt X-Achse unten hinzu
+        self.__chart.addAxis(axis_dollar, Qt.AlignmentFlag.AlignLeft)  # Fügt Y-Achse links hinzu
 
-        self.__chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
-        self.__chart.addAxis(axis_dollar, Qt.AlignmentFlag.AlignLeft)
+        self.__chart.addSeries(self.__series)  # Fügt die Datenreihe dem Diagramm hinzu
 
-        self.__chart.addSeries(self.__series)
+        self.__series.attachAxis(axis_x)  # Verbindet die Datenreihe mit der X-Achse
+        self.__series.attachAxis(axis_dollar)  # Verbindet die Datenreihe mit der Y-Achse
 
-        self.__series.attachAxis(axis_x)
-        self.__series.attachAxis(axis_dollar)
-
-        self.setChart(self.__chart)
+        self.setChart(self.__chart)  # Setzt das Diagramm als Anzeige für dieses Widget
 
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
-        if event.button().LeftButton:
-            event.accept()
+        if event.button().LeftButton:  # Nur wenn die linke Maustaste losgelassen wurde
+            event.accept()  # Markiert das Event als verarbeitet
 
+            # Klickposition (Pixelkoordinate) wird in Datenpunkt umgerechnet
             new_value = self.__chart.mapToValue(event.pos().toPointF(), self.__series)
 
+            # Überprüfen, an welcher Stelle der neue Punkt in die Zeitreihe eingefügt werden soll
             for i in range(len(self.__series.points())):
-                if self.__series.at(i).x() > new_value.x():
-                    self.__series.insert(i, new_value)
+                if self.__series.at(i).x() > new_value.x():  # Wenn der neue Zeitwert vor einem bestehenden liegt
+                    self.__series.insert(i, new_value)  # Füge ihn an dieser Stelle sortiert ein
+                    return  # Danach abbrechen, da eingefügt
 
-                    return
-
+            # Falls er später als alle bisherigen ist → ans Ende anhängen
             self.__series.append(new_value)
-           
