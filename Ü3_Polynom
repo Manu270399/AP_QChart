@@ -1,52 +1,60 @@
-Verändern Sie den Quelltext der Übung 2 auf ein Polynom dritter Ordnung:
+# ------------------------------------------------------------------------------------------------------------
+# Aufgabenstellung:
+# Verändern Sie den Quelltext der Übung 2 auf ein Polynom dritter Ordnung:
+# f(x) = x³ - 2x² + 4x - 3
+# Der Wertebereich geht dabei von -2,5 bis 3,0 mit einer Schrittweite von 0,1.
+# Stellen Sie die Funktion als Linie im Diagramm dar.
+# ------------------------------------------------------------------------------------------------------------
 
-f(x) = x3 - 2x2 + 4x - 3 mit x im Bereich von -2,5 bis 3,0 mit einer Schrittweite von 0,1.
+import math  # Wird hier zwar nicht zwingend gebraucht, aber für mathematische Erweiterungen nützlich
 
+from PyQt6.QtCharts import QChartView, QChart, QValueAxis, QLineSeries  # Chart-Komponenten von PyQt6
+from PyQt6.QtCore import Qt  # Für Achsenausrichtung
 
-import math
-
-from PyQt6.QtCharts import QChartView, QChart, QValueAxis, QLineSeries, QSplineSeries
-from PyQt6.QtCore import Qt
-
-
-class CentralWidget(QChartView):
+class CentralWidget(QChartView):  # Hauptklasse für die Darstellung des Diagramms
     def __init__(self, parent=None):
-        super(CentralWidget, self).__init__(parent)
+        super(CentralWidget, self).__init__(parent)  # Initialisierung des Elternobjekts
 
-        delta_x = 0.1
-        x_min = -2.5
-        x_max = 3.0
+        delta_x = 0.1       # Schrittweite zwischen zwei x-Werten
+        x_min = -2.5        # Start des Wertebereichs
+        x_max = 3.0         # Ende des Wertebereichs
 
+        # Erstelle eine Liste aller x-Werte im gegebenen Bereich
         start = int(x_min / delta_x)
         end = int(x_max / delta_x)
         values_x = [i * delta_x for i in range(start, end)]
 
-        values_sine = []
+        # Berechne y-Werte für das Polynom f(x) = x³ - 2x² + 4x - 3
+        values_polynomial = []
         for x in values_x:
-            values_sine.append(x**3 - 2 * x**2 + 4 * x - 3)
+            values_polynomial.append(x**3 - 2 * x**2 + 4 * x - 3)
 
-        series_sinus = QLineSeries()
-        series_sinus.setName("Polynom")
+        # Erstelle die Datenreihe für das Diagramm
+        series_polynomial = QLineSeries()
+        series_polynomial.setName("Polynom 3. Ordnung")  # Name für die Legende
 
+        # Füge die Punkte in die Datenreihe ein
         for i in range(len(values_x)):
-            series_sinus.append(values_x[i], values_sine[i])
+            series_polynomial.append(values_x[i], values_polynomial[i])
 
+        # X-Achse konfigurieren
         axis_x = QValueAxis()
-        axis_x.setRange(x_min, x_max)
-        axis_x.setTitleText("x-Achse")
+        axis_x.setRange(x_min, x_max)         # Sichtbarer Bereich der X-Achse
+        axis_x.setTitleText("x-Achse")        # Beschriftung der X-Achse
 
+        # Y-Achse konfigurieren (automatisch durch Chart anpassbar, hier leer definiert)
         axis_y = QValueAxis()
-        axis_y.setTitleText("y-Achse")
+        axis_y.setTitleText("y-Achse")        # Beschriftung der Y-Achse
 
+        # Diagramm erzeugen und konfigurieren
         q_chart = QChart()
+        q_chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)  # X-Achse unten
+        q_chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)    # Y-Achse links
 
-        q_chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
-        q_chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
+        q_chart.addSeries(series_polynomial)  # Datenreihe zum Diagramm hinzufügen
 
-        q_chart.addSeries(series_sinus)
+        # Datenreihe mit Achsen verbinden
+        series_polynomial.attachAxis(axis_x)
+        series_polynomial.attachAxis(axis_y)
 
-        series_sinus.attachAxis(axis_x)
-        series_sinus.attachAxis(axis_y)
-
-        self.setChart(q_chart)
-
+        self.setChart(q_chart)  # Diagramm anzeigen
