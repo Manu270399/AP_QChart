@@ -1,65 +1,80 @@
-Dient zur asynchronen Kommunikation zwischen Objekten
+# ------------------------------------------------------------------------------------------------------------
+# Aufgabenstellung:
+# Demonstrieren Sie die Verwendung von Signal- und Slot-Mechanismen in PyQt6 zur asynchronen Kommunikation
+# zwischen zwei unabhängigen Objekten. Ziel ist es, dass das Senden und Empfangen von Werten über definierte
+# Schnittstellen (Signal/Slot) funktioniert, ohne dass die Klassen voneinander direkt abhängig sind.
+# ------------------------------------------------------------------------------------------------------------
 
-from Signal import Signal
-from Slot import Slot
+# -------------------------
+# main.py
+# -------------------------
+
+from Signal import Signal  # Importiert die Klasse, die Signale sendet
+from Slot import Slot      # Importiert die Klasse, die auf Signale reagiert
 
 if __name__ == '__main__':
-    signal = Signal()
-    slot = Slot()
+    signal = Signal()  # Erstellt ein Signal-Objekt (Sender)
+    slot = Slot()      # Erstellt ein Slot-Objekt (Empfänger)
 
-    signal.send_string.connect(slot.slot_string)
-    signal.send_int.connect(slot.slot_integer)
-    signal.send_void.connect(slot.slot_void)
+    # Verbindet die Signale mit den zugehörigen Slots
+    signal.send_string.connect(slot.slot_string)  # Wenn send_string ausgelöst wird → slot_string aufrufen
+    signal.send_int.connect(slot.slot_integer)    # Wenn send_int ausgelöst wird → slot_integer aufrufen
+    signal.send_void.connect(slot.slot_void)      # Wenn send_void ausgelöst wird → slot_void aufrufen
 
-    signal.set_int(109)
-    signal.void()
-    signal.set_string("Mein Text")
-
------ Slot.py
-from PyQt6.QtCore import QObject, pyqtSlot
+    # Löst die Signale aus
+    signal.set_int(109)              # → Gibt 109 aus
+    signal.void()                    # → Gibt "Signal erhalten." aus
+    signal.set_string("Mein Text")   # → Gibt "Mein Text" aus
 
 
-class Slot(QObject):
+# -------------------------
+# Slot.py
+# -------------------------
+
+from PyQt6.QtCore import QObject, pyqtSlot  # Importiert das Slot-System von PyQt6
+
+class Slot(QObject):  # Klasse, die Methoden (Slots) enthält, die auf Signale reagieren können
     def __init__(self):
         super().__init__()
 
-    @pyqtSlot(str)
+    @pyqtSlot(str)  # Definiert einen Slot, der auf ein Signal mit einem String reagiert
     def slot_string(self, string):
-        print(string)
+        print(string)  # Gibt den empfangenen String in der Konsole aus
 
-    @pyqtSlot(int)
+    @pyqtSlot(int)  # Slot für Integer-Signale
     def slot_integer(self, integer):
-        print(integer)
+        print(integer)  # Gibt die empfangene Zahl aus
 
-    @pyqtSlot()
+    @pyqtSlot()  # Slot ohne Parameter
     def slot_void(self):
-        print("Signal erhalten.")
-
------ Signal.py
-from PyQt6.QtCore import QObject, pyqtSignal
+        print("Signal erhalten.")  # Gibt feste Nachricht aus
 
 
-class Signal(QObject):
-    send_string = pyqtSignal(str)
-    send_int = pyqtSignal(int)
-    send_void = pyqtSignal()
+# -------------------------
+# Signal.py
+# -------------------------
+
+from PyQt6.QtCore import QObject, pyqtSignal  # Importiert das Signal-System von PyQt6
+
+class Signal(QObject):  # Diese Klasse sendet Signale an andere Objekte
+    # Definition der Signale
+    send_string = pyqtSignal(str)  # Signal, das einen String überträgt
+    send_int = pyqtSignal(int)     # Signal, das eine ganze Zahl überträgt
+    send_void = pyqtSignal()       # Signal ohne Daten (z. B. nur zum Auslösen)
 
     def __init__(self):
         super().__init__()
 
-        self.__string = "Hallo Welt"
-        self.__int = 42
+        self.__string = "Hallo Welt"  # Initialwert
+        self.__int = 42               # Initialwert
 
     def set_string(self, string):
-        self.__string = string
-
-        self.send_string.emit(string)
+        self.__string = string             # Setzt internen Wert
+        self.send_string.emit(string)      # Sendet das Signal mit dem neuen Wert
 
     def set_int(self, number):
-        self.__int = number
-
-        self.send_int.emit(number)
+        self.__int = number                # Setzt internen Wert
+        self.send_int.emit(number)         # Sendet das Signal mit dem neuen Wert
 
     def void(self):
-        self.send_void.emit()
-        
+        self.send_void.emit()              # Sendet ein leeres Signal
