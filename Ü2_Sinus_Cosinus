@@ -1,63 +1,78 @@
-Erstellen Sie auf Basis des Quelltext aus Übung 1 einen Plotter für die Funktion sin(x).
-Der Wertebereich geht dabei von -3,14 bis 6,28 mit einer Schrittweite von 0,02.
+# ------------------------------------------------------------------------------------------------------------
+# Aufgabenstellung:
+# Erstellen Sie auf Basis des Quelltexts aus Übung 1 einen Plotter für die Funktion sin(x).
+# Der Wertebereich geht dabei von -3,14 bis 6,28 mit einer Schrittweite von 0,02.
+# Optional: Zeichnen Sie zusätzlich auch die Cosinus-Funktion in demselben Diagramm.
+# ------------------------------------------------------------------------------------------------------------
 
+import math  # Für mathematische Funktionen wie sin() und pi
 
-import math
+from PyQt6.QtCharts import QChartView, QChart, QValueAxis, QLineSeries  # Importiert PyQt6-Chart-Komponenten
+from PyQt6.QtCore import Qt  # Für Ausrichtungsoptionen
 
-from PyQt6.QtCharts import QChartView, QChart, QValueAxis, QLineSeries, QSplineSeries
-from PyQt6.QtCore import Qt
-
-
-class CentralWidget(QChartView):
+class CentralWidget(QChartView):  # Widget zur Darstellung des Diagramms
     def __init__(self, parent=None):
-        super(CentralWidget, self).__init__(parent)
+        super(CentralWidget, self).__init__(parent)  # Konstruktor der Elternklasse aufrufen
 
-        delta_x = 0.02
-        x_min = -1.0 * math.pi # -3.14...
-        x_max = 2.0 * math.pi # 6.28...
+        delta_x = 0.02  # Schrittweite für die X-Werte (je kleiner, desto genauer/geglätteter)
+        x_min = -1.0 * math.pi  # Startwert: -π ≈ -3.14
+        x_max = 2.0 * math.pi   # Endwert: 2π ≈ 6.28
 
+        # Liste aller X-Werte erzeugen (z. B. -3.14, -3.12, ..., 6.28)
         start = int(x_min / delta_x)
         end = int(x_max / delta_x)
         values_x = [i * delta_x for i in range(start, end)]
 
+        # Berechne y-Werte für Sinus-Funktion
         values_sine = []
         for x in values_x:
-            values_sine.append(math.sin(x))
+            values_sine.append(math.sin(x))  # y = sin(x)
 
+        # Berechne y-Werte für Cosinus-Funktion
         values_cosine = []
         for x in values_x:
-            values_cosine.append(math.cos(x))
+            values_cosine.append(math.cos(x))  # y = cos(x)
 
+        # Erstellt eine Linienreihe für Sinus
         series_sinus = QLineSeries()
-        series_sinus.setName("Sinus")
+        series_sinus.setName("Sinus")  # Name für die Legende
 
+        # Erstellt eine Linienreihe für Cosinus
         series_cosine = QLineSeries()
         series_cosine.setName("Cosinus")
 
+        # Füge die Werte in die Linien ein (x- und y-Koordinaten)
         for i in range(len(values_x)):
             series_sinus.append(values_x[i], values_sine[i])
             series_cosine.append(values_x[i], values_cosine[i])
 
+        # X-Achse konfigurieren
         axis_x = QValueAxis()
-        axis_x.setRange(x_min, x_max)
+        axis_x.setRange(x_min, x_max)  # Bereich von -π bis 2π
         axis_x.setTitleText("x-Achse")
 
+        # Y-Achse konfigurieren
         axis_y = QValueAxis()
         axis_y.setTitleText("y-Achse")
-        axis_y.setRange(-1, 1)
+        axis_y.setRange(-1, 1)  # Sinus und Cosinus liegen im Bereich [-1, 1]
 
+        # Neues Diagramm erstellen
         q_chart = QChart()
 
+        # Achsen zum Diagramm hinzufügen
         q_chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
         q_chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
 
+        # Datenreihen zum Diagramm hinzufügen
         q_chart.addSeries(series_sinus)
         q_chart.addSeries(series_cosine)
 
+        # Verknüpfe Datenreihen mit Achsen
         series_sinus.attachAxis(axis_x)
         series_sinus.attachAxis(axis_y)
 
         series_cosine.attachAxis(axis_x)
         series_cosine.attachAxis(axis_y)
 
+        # Zeigt das Diagramm im ChartView an
         self.setChart(q_chart)
