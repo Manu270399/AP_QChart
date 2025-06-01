@@ -1,43 +1,58 @@
-from PyQt6.QtCharts import QChartView, QChart, QValueAxis, QLineSeries, QSplineSeries
-from PyQt6.QtCore import Qt
+# ------------------------------------------------------------------------------------------------------------
+# Aufgabenstellung:
+# Erstellen Sie ein PyQt6-Diagramm mit zwei Linien auf der Basis derselben Datenpunkte.
+# Vergleichen Sie eine QLineSeries (normale Linienverbindung) mit einer QSplineSeries (geglättete Kurve),
+# um den Unterschied in der Darstellung zu zeigen.
+# ------------------------------------------------------------------------------------------------------------
+
+from PyQt6.QtCharts import QChartView, QChart, QValueAxis, QLineSeries, QSplineSeries  # Importiert alle benötigten Chart-Klassen
+from PyQt6.QtCore import Qt  # Für Ausrichtungsoptionen
 
 
-class CentralWidget(QChartView):
+class CentralWidget(QChartView):  # Zentrales Widget, das ein Diagramm anzeigt
     def __init__(self, parent=None):
-        super(CentralWidget, self).__init__(parent)
+        super(CentralWidget, self).__init__(parent)  # Konstruktor der Elternklasse aufrufen
 
+        # Erstellt eine gerade Verbindung der Punkte – klassische Darstellung
         series = QLineSeries()
-        series.setName("Parabel als QLineSeries")
+        series.setName("Parabel als QLineSeries")  # Name für die Legende
         series.append(0, 0)
         series.append(1, 1)
         series.append(2, 4)
         series.append(3, 9)
 
+        # Erstellt eine geglättete Linie – weichere Darstellung der Kurve
         series_spline = QSplineSeries()
-        series_spline.setName("Parabel als QSplineSeries")
+        series_spline.setName("Parabel als QSplineSeries")  # Name für die Legende
         series_spline.append(0, 0)
         series_spline.append(1, 1)
         series_spline.append(2, 4)
         series_spline.append(3, 9)
 
+        # X-Achse konfigurieren
         axis_x = QValueAxis()
-        axis_x.setTitleText("x-Achse")
+        axis_x.setTitleText("x-Achse")  # Beschriftung der X-Achse
 
+        # Y-Achse konfigurieren
         axis_y = QValueAxis()
-        axis_y.setTitleText("y-Achse")
+        axis_y.setTitleText("y-Achse")  # Beschriftung der Y-Achse
 
+        # Neues Diagramm erstellen
         q_chart = QChart()
 
-        q_chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
-        q_chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
+        # Achsen zum Diagramm hinzufügen
+        q_chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)  # X-Achse unten
+        q_chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)    # Y-Achse links
 
-        q_chart.addSeries(series)
-        q_chart.addSeries(series_spline)
+        # Datenreihen hinzufügen
+        q_chart.addSeries(series)  # Gerade Linie hinzufügen
+        q_chart.addSeries(series_spline)  # Geglättete Linie hinzufügen
 
+        # Beide Linien mit den Achsen verbinden
         series.attachAxis(axis_x)
         series.attachAxis(axis_y)
-
         series_spline.attachAxis(axis_x)
         series_spline.attachAxis(axis_y)
 
+        # Diagramm im Widget anzeigen
         self.setChart(q_chart)
