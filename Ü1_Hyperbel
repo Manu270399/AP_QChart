@@ -1,52 +1,60 @@
-Erstellen Sie eine Hyperbel im Wertebereich vom - 5 bis 5 zur Ansicht im QChartView.
+# ------------------------------------------------------------------------------------------------------------
+# Aufgabenstellung:
+# Erstellen Sie eine Hyperbel im Wertebereich von -5 bis 5 und stellen Sie diese mit QLineSeries im QChartView dar.
+# Dabei soll der Funktionsverlauf von y = 1/x (außer an der Stelle x = 0) in einem Liniendiagramm angezeigt werden.
+# ------------------------------------------------------------------------------------------------------------
 
+from PyQt6.QtCharts import QChartView, QChart, QValueAxis, QLineSeries  # Importiert alle notwendigen Chart-Klassen
+from PyQt6.QtCore import Qt  # Für Ausrichtungsflags wie AlignBottom
 
-from PyQt6.QtCharts import QChartView, QChart, QValueAxis, QLineSeries, QSplineSeries
-from PyQt6.QtCore import Qt
-
-
-class CentralWidget(QChartView):
+class CentralWidget(QChartView):  # Hauptanzeigeelement für das Diagramm
     def __init__(self, parent=None):
-        super(CentralWidget, self).__init__(parent)
+        super(CentralWidget, self).__init__(parent)  # Konstruktor des Elternteils aufrufen
 
-        delta_x = 0.01
-        x_min = -10
-        x_max = 5
+        delta_x = 0.01  # Abstand zwischen x-Werten – je kleiner, desto glatter die Linie
+        x_min = -10     # Startwert für X-Achse (sichtbarer Bereich später ist -5 bis 5)
+        x_max = 5       # Endwert für X-Achse
 
+        # Berechnet eine Liste aller x-Werte im gegebenen Bereich
         start = int(x_min / delta_x)
         end = int(x_max / delta_x)
         values_x = [i * delta_x for i in range(start, end)]
 
+        # Berechnet die zugehörigen y-Werte für die Hyperbel y = 1/x
         values_y = []
         for x in values_x:
             if x == 0.0:
-                values_y.append(0.0)
+                values_y.append(0.0)  # Vermeidet Division durch 0
             else:
                 values_y.append(1 / x)
 
+        # Erstellt eine Linie, die die Hyperbel darstellt
         series_spline = QLineSeries()
-        series_spline.setName("Hyperbel")
+        series_spline.setName("Hyperbel")  # Name für die Legende
 
+        # Fügt alle berechneten Punkte in die Datenreihe ein
         for i in range(len(values_x)):
             series_spline.append(values_x[i], values_y[i])
 
+        # X-Achse konfigurieren
         axis_x = QValueAxis()
-        axis_x.setRange(x_min, x_max)
-        axis_x.setTitleText("x-Achse")
+        axis_x.setRange(x_min, x_max)       # Bereich von -10 bis 5
+        axis_x.setTitleText("x-Achse")      # Beschriftung
 
+        # Y-Achse konfigurieren
         axis_y = QValueAxis()
-        axis_y.setTitleText("y-Achse")
-        axis_y.setRange(-15, 15)
+        axis_y.setTitleText("y-Achse")      # Beschriftung
+        axis_y.setRange(-15, 15)            # Sichtbarer Wertebereich
 
+        # Diagramm erstellen und Achsen hinzufügen
         q_chart = QChart()
-
         q_chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
         q_chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
 
-        q_chart.addSeries(series_spline)
+        q_chart.addSeries(series_spline)  # Linie ins Diagramm einfügen
 
+        # Linie mit den Achsen verbinden
         series_spline.attachAxis(axis_x)
         series_spline.attachAxis(axis_y)
 
-        self.setChart(q_chart)
-
+        self.setChart(q_chart)  # Zeigt das fertige Diagramm im Fenster an
