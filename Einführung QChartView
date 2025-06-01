@@ -1,50 +1,60 @@
-from PyQt6.QtWidgets import QMainWindow
+Datei: MainWindow.py
 
-from CentralWidget import CentralWidget
+from PyQt6.QtWidgets import QMainWindow  # Importiert das Hauptfenster-Widget von PyQt6
 
+from CentralWidget import CentralWidget  # Importiert das zentrale Widget aus der anderen Datei
 
+# Klasse für das Hauptfenster der Anwendung
 class MainWindow(QMainWindow):
-    def __init__(self, parent=None):
-        super(MainWindow, self).__init__(parent)
+    def __init__(self, parent=None):  # Konstruktor – wird beim Erstellen des Fensters aufgerufen
+        super(MainWindow, self).__init__(parent)  # Ruft den Konstruktor der Elternklasse auf
 
-        central_widget = CentralWidget(self)
+        central_widget = CentralWidget(self)  # Erstellt ein zentrales Widget (Chart) und übergibt das Hauptfenster als Elternteil
 
-        self.setCentralWidget(central_widget)
+        self.setCentralWidget(central_widget)  # Setzt das zentrale Widget in das Hauptfenster ein
 
-        self.setWindowTitle("Einführung in QCharts")
-        self.setMinimumSize(800, 640)
+        self.setWindowTitle("Einführung in QCharts")  # Setzt den Fenstertitel
+        self.setMinimumSize(800, 640)  # Legt die Mindestgröße des Fensters auf 800x640 Pixel fest
+
 
 --------------------------------------------------------------------------------------------------------------
 
-from PyQt6.QtCharts import QChartView, QChart, QValueAxis, QLineSeries
-from PyQt6.QtCore import Qt
+Datei: CentralWidget.py
 
+from PyQt6.QtCharts import QChartView, QChart, QValueAxis, QLineSeries  # Importiert die Chart-Komponenten
+from PyQt6.QtCore import Qt  # Importiert Qt-Konstanten wie z. B. Ausrichtungen
 
+# Zentrales Widget, das ein Diagramm anzeigt – es erbt von QChartView
 class CentralWidget(QChartView):
     def __init__(self, parent=None):
-        super(CentralWidget, self).__init__(parent)
+        super(CentralWidget, self).__init__(parent)  # Ruft Konstruktor der Elternklasse auf
 
-        series = QLineSeries()
-        series.setName("Parabel")
+        series = QLineSeries()  # Erstellt eine neue Linie für das Diagramm
+        series.setName("Parabel")  # Benennt die Datenreihe
+
+        # Fügt Punkte zur Linie hinzu (y = x²)
         series.append(0, 0)
         series.append(1, 1)
         series.append(2, 4)
         series.append(3, 9)
 
-        axis_x = QValueAxis()
-        axis_x.setTitleText("x-Achse")
+        axis_x = QValueAxis()  # Erstellt eine Zahlenachse für die x-Achse
+        axis_x.setTitleText("x-Achse")  # Titel für die x-Achse setzen
 
-        axis_y = QValueAxis()
-        axis_y.setTitleText("y-Achse")
+        axis_y = QValueAxis()  # Erstellt eine Zahlenachse für die y-Achse
+        axis_y.setTitleText("y-Achse")  # Titel für die y-Achse setzen
 
-        q_chart = QChart()
+        q_chart = QChart()  # Erstellt das eigentliche Diagramm-Objekt
 
-        q_chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)
-        q_chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)
+        # Achsen zum Diagramm hinzufügen und ausrichten
+        q_chart.addAxis(axis_x, Qt.AlignmentFlag.AlignBottom)  # x-Achse unten
+        q_chart.addAxis(axis_y, Qt.AlignmentFlag.AlignLeft)    # y-Achse links
 
-        q_chart.addSeries(series)
+        q_chart.addSeries(series)  # Die Linie zum Diagramm hinzufügen
 
+        # Linie mit den Achsen verbinden
         series.attachAxis(axis_x)
         series.attachAxis(axis_y)
 
-        self.setChart(q_chart)
+        self.setChart(q_chart)  # Setzt das erstellte Diagramm als Inhalt des ChartView-Widgets
+
